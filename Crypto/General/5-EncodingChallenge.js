@@ -1,40 +1,41 @@
 const net = require('net');
 const { ASCII } = require('./1-ASCII.js');
 const { HEX } = require('./2-HEX.js');
-const { Base64Decoder } = require('./3-Base64.js');
-const { BigHex_Dencoder } = require('./4-Bytes_and_Big_Integers.js');
+const { Base64_Decoder } = require('./3-Base64.js');
+const { BigHex_Decoder } = require('./4-Bytes_and_Big_Integers.js');
+const { rot13 } = require('./6-rot13.js');
 
 const client = net.createConnection(13377, "socket.cryptohack.org");
 
+// データを受信したときに発火
 client.on("data", data => {
-  const obj = JSON.parse(data.toString());
+	console.log(data.toString());
+  	const obj = JSON.parse(data.toString());
 
-  let decoded;
+  	let decoded;
 
-  switch (obj.type) {
-    case "base64":
-      decoded = Base64_Decoder(obj.encoded);
-      break;
+  	switch (obj.type) {
+    		case "base64":
+      			decoded = Base64_Decoder(obj.encoded);
+      			break;
 
-    case "hex":
-      decoded = HEX(obj.encoded);
-      break;
+    		case "hex":
+      			decoded = HEX(obj.encoded);
+      			break;
 
-    case "rot13":
-      decoded = obj.encoded.replace(/[a-zA-Z]/g, c =>
-        String.fromCharCode(
-          c.charCodeAt(0) + (c.toLowerCase() < "n" ? 13 : -13)
-        )
-      );
-      break;
+    		case "rot13":
+      			decoded = rot13(obj.encoded);
+      			break;
 
-    case "bigint":
-      break;
+    		case "bigint":
+			decoded = BigHex_Decoder(obj.encoded);
+      			break;
 
-    case "utf-8":
-      decoded = obj.encoded.map(v => String.fromCharCode(v)).join("");
-      break;
-  }
+    		case "utf-8":
+      			decoded = ASCII(obj.encoded);
+      			break;
+  	}
 
-  client.write(JSON.stringify({ decoded }) + "\n");
+	console.log(decoded);
+  	client.write(JSON.stringify({ decoded }) + "\n");
 });

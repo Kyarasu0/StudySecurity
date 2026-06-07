@@ -12,14 +12,19 @@ function Base64_Encoder(hex){
 	const bytes = afterHex.map(v => v.toString(2).padStart(8, "0")).join("");
 
 	// 6bitごとに分割
-	const base64 = bytes.match(/.{1,6}/g).map(v => v.length < 6 ? v.padEnd(6, "0") : v);
+	const base64 = bytes.match(/.{1,6}/g)
+	// 6bitに足りていない要素には0で埋め、"="で知らせる
+	let padLength = 0; 
+	if (base64[base64.length - 1].length !== 6){
+		padLength = (6 - base64[base64.length - 1].length) / 2
+		base64[base64.length - 1] = base64[base64.length - 1].padEnd(6, "0");
+	}
 
 	// 6bitを10進数に変換してテーブルから取得
 	let result = base64.map(v => base64Table[parseInt(v, 2)]).join("");
 
 	// パディング処理
-	const pad = (3 - (bytes.length % 3)) % 3;
-	result = result + "=".repeat(pad);
+	result = result + "=".repeat(padLength);
 
 	return result;
 }
@@ -31,10 +36,13 @@ function Base64_Decoder(data){
 	// 10進数を6bitに変換
 	const base64 = normalInt.map(v => v.toString(2).padStart(6, "0")).join("");
 	// 8bitに変換して各それぞれを10進数に変換
-	const bytes = base64.match(/.{1,8}/g).map(v => parseInt(v, 2));
+	// 8bitに満たないところはエンコード時にpaddingされたところなので捨てる
+	const bytes = base64.match(/.{1,8}/g).filter(v => v.length === 8).map(v => parseInt(v, 2));
 	// ASCIIに変換
 	const result = bytes.map(v => String.fromCharCode(v)).join("");
 	return result;
 }
+
+module.exports = { Base64_Encoder, Base64_Decoder };
 
 console.log(Base64_Encoder(hex));

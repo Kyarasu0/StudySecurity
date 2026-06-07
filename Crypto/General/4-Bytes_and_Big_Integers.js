@@ -14,10 +14,12 @@ function BigInt_Decoder(bigInt){
 }
 
 function BigHex_Decoder(bigHex){
-	const normalInt = bigHex.match(/.{1,2}/g).map(v => parseInt(v, 16));
+	const normalInt = bigHex.match(/.{1,2}/g).filter(v => v !== "0x").map(v => parseInt(v, 16));
 	const result = normalInt.map(v => String.fromCharCode(v));
 	return result.join("");
 }
+
+module.exports = { BigInt_Decoder, BigHex_Decoder };
 
 // 結果を表示
 console.log(BigInt_Decoder(bigInt));

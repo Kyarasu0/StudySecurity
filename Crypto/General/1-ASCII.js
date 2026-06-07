@@ -4,9 +4,8 @@ const ascii_list =[99, 114, 121, 112, 116, 111, 123, 65, 83, 67, 73, 73, 95, 112
 // UTF-16: 最小単位が16bit(2byte)の基本的には固定長文字/バイト列変換方式
 
 function ASCII(ascii_list){
-
 	const result = ascii_list.map(v => String.fromCharCode(v));
 	return result.join("");
 }
 
-console.log(ASCII(ascii_list));
+module.exports = { ASCII };
